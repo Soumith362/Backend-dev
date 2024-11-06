@@ -1,0 +1,13 @@
+{
+    "name": "banner-api",
+    "version": "1.0.0",
+    "description": "A simple Express.js API for updating banners with S3 integration",
+    "main": "app.js",
+    "scripts": {
+      "start": "node app.js"
+    },
+    "dependencies": {
+      "express": "^4.17.1"
+    }
+  }
+  
