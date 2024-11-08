@@ -7,11 +7,15 @@ on:
 
 jobs:
   docker-job:
-    runs-on: self-hosted
+    runs-on: self-hosted  # Ensure this runner is configured and online
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Docker Run
+      - name: Build Docker Image
         run: |
-          docker run -d --name nginx -p 80:80 nginx
+          docker build -t backend-app .
+
+      - name: Run Docker Container
+        run: |
+          docker run -d --name backend-app -p 3000:3000 backend-app
