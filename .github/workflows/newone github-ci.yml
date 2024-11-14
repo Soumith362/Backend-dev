@@ -1,26 +1,28 @@
-name: CI Pipeline
+name: Build and Test
 
 on:
   push:
     branches:
-      - master
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  docker-job:
-    runs-on: self-hosted  # Make sure your runner is correctly configured and online
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Verify Dockerfile Presence
-        run: |
-          if [ ! -f ./Dockerfile ]; then
-            echo "Dockerfile does not exist in the repository root"
-            exit 1
-          fi
+    - name: Check if Dockerfile exists
+      run: |
+        if [ ! -f ./Dockerfile ]; then
+          echo "Dockerfile does not exist in the repository root"
+          exit 1
+        fi
 
-      - name: Build Docker Image
-        run: docker build -t backend-app .
-
-      - name: Run Docker Container
-        run: docker run -d --name backend-app -p 3000:3000 backend-app
+    - name: Build Docker image
+      run: docker build -t bckimage .
+      # You can add more steps here, like running tests, pushing the image to a registry, etc.
