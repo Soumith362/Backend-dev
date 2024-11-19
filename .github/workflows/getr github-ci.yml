@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check for Dockerfile
+      run: |
+        if [ ! -f ./bck_devops_testing/Dockerfile ]; then
+          echo "Dockerfile does not exist in bck_devops_testing directory"
+          exit 1
+        fi
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker image
+      run: |
+        docker buildx build --platform linux/amd64 -t bckimage:latest ./bck_devops_testing
+
+    - name: Install sshpass
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+
+    - name: Deploy and Run Docker container on EC2
+      env:
+        HOST: 52.91.16.229
+        USERNAME: veladandisoumith
+        PASSWORD: ${{ secrets.EC2_PASSWORD }}
+      run: |
+        sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$HOST << EOF
+          docker build -t bckimage:latest /home/$USERNAME/bck_devops_testing
+          docker stop myapp || true
+          docker rm myapp || true
+          docker run -d --name myapp -p 80:80 bckimage:latest
+        EOF
