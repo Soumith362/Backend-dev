@@ -3,10 +3,10 @@ name: CI/CD Pipeline for Dockerized App
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - master  # Trigger on push to the main branch
   pull_request:
     branches:
-      - main  # Trigger on PRs to the main branch
+      - master # Trigger on PRs to the main branch
 
 jobs:
   build-and-deploy:
