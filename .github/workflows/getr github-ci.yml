@@ -3,7 +3,7 @@ name: Deploy and Run Docker container on EC2
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-deploy:
