@@ -40,8 +40,11 @@ jobs:
       env:
         HOST: 34.238.240.44  # EC2 Public IP
         USERNAME: ubuntu  # EC2 SSH username (adjust if different)
-        PASSWORD: 9705346780  # EC2 password
+        PASSWORD: ${{ secrets.EC2_PASSWORD }}  # EC2 password from GitHub Secrets
       run: |
+        # Install sshpass if not installed
+        sudo apt-get update && sudo apt-get install -y sshpass
+
         # SSH into EC2 and deploy the Docker container
         sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$HOST << EOF
         # Pull the Docker image from Docker Hub
