@@ -42,7 +42,7 @@ jobs:
     # Step 6: Deploy Docker container on EC2
     - name: Deploy Docker container on EC2
       env:
-        HOST: 44.211.61.207  # EC2 Public IP
+        HOST: 52.91.26.208  # EC2 Public IP
         USERNAME: ubuntu  # EC2 SSH username
         PASSWORD: 9705346780  # EC2 password for SSH access
       run: |
