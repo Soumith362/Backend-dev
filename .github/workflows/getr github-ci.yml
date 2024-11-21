@@ -25,10 +25,10 @@ jobs:
         username: soumith362  # Docker Hub username
         password: 9705346780  # Docker Hub password
 
-    # Step 4: Build the Docker image from your Dockerfile
+    # Step 4: Build the Docker image from your Dockerfile inside the bck_devops_testing folder
     - name: Build Docker image
       run: |
-        docker build -t soumith362/bckimage:latest .
+        docker build -t soumith362/bckimage:latest -f bck_devops_testing/Dockerfile bck_devops_testing/
 
     # Step 5: Push the Docker image to Docker Hub
     - name: Push Docker image to Docker Hub
