@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     # Step 1: Checkout the code from the repository
@@ -38,7 +38,7 @@ jobs:
     # Step 6: Deploy Docker container on EC2
     - name: Deploy Docker container on EC2
       env:
-        HOST: 34.238.240.44  # EC2 Public IP
+        HOST: 18.208.167.204  # Updated EC2 Public IP
         USERNAME: ubuntu  # EC2 SSH username (adjust if different)
         PASSWORD: ${{ secrets.EC2_PASSWORD }}  # EC2 password from GitHub Secrets
       run: |
