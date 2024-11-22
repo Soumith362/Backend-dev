@@ -3,7 +3,7 @@ name: test pipeline
 on:
   push:
     branches:
-      - master # Change this to your branch name if it's different
+      - main  # Change this to your branch name if it's different
 
 jobs:
   docker_build:
@@ -14,8 +14,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cd /root/Backend-dev/bck_devops_testing
-          docker build -t bckimage .
+          docker build -t bckimage ./Backend-dev/bck_devops_testing
 
   docker_deploy:
     runs-on: self-hosted
