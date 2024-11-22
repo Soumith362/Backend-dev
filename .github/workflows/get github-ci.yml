@@ -44,8 +44,8 @@ jobs:
       - name: docker build main
         run: |
           docker-compose build . 
+
           
-  
   main_docker_dep:
     runs-on: self-hosted
     steps:
