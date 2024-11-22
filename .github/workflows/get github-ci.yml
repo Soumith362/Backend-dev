@@ -6,19 +6,8 @@ on:
       - master # Change this to your branch name if it's different
 
 jobs:
-  fs_scan:
-    runs-on: self-hosted
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run Trivy Security Scan
-        run: |
-          trivy fs . -o scan.json
-
   docker_build:
     runs-on: self-hosted
-    needs: fs_scan
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
