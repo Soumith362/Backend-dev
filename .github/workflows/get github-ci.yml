@@ -3,64 +3,38 @@ name: test pipeline
 on:
   push:
     branches:
-      - master
-      - dev
+      - master # Change this to your branch name if it's different
 
 jobs:
-  fs_scan_dev:
-    if: github.ref == 'refs/heads/dev'
+  fs_scan:
     runs-on: self-hosted
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Run Trivy Security Scan (Dev)
+      - name: Run Trivy Security Scan
         run: |
-          trivy fs . -o dev_scan.json
+          trivy fs . -o scan.json
 
-  fs_scan_master:
-    if: github.ref == 'refs/heads/master'
+  docker_build:
     runs-on: self-hosted
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        
-      - name: Run Trivy Security Scan (Master)
-        run: |
-          trivy fs . -o master_scan.json
-
-  dev_docker_build:
-    if: github.ref == 'refs/heads/dev'
-    runs-on: self-hosted
+    needs: fs_scan
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build Docker image for Dev
+      - name: Build Docker image
         run: |
           cd /root/Backend-dev/bck_devops_testing
-          docker build -t bckimage:dev .
+          docker build -t bckimage .
 
-  master_docker_build:
-    if: github.ref == 'refs/heads/master'
+  docker_deploy:
     runs-on: self-hosted
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Build Docker image for Master
-        run: |
-          cd /root/Backend-dev/bck_devops_testing
-          docker build -t bckimage:latest .
-
-  master_docker_deploy:
-    if: github.ref == 'refs/heads/master'
-    runs-on: self-hosted
-    needs: master_docker_build
+    needs: docker_build
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3 
 
       - name: Run Docker container
         run: |
-          docker run -d --name main_container bckimage:latest
+          docker run -d --name main_container bckimage
