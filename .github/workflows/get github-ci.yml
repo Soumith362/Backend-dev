@@ -1,56 +1,69 @@
-name: test pipeline 
+name: test pipeline
 on: 
- push: 
-   branches:
-    - master
-    - dev 
+  push: 
+    branches:
+      - master
+      - dev
+
 jobs:
   fs_scan_dev:
     if: github.ref == 'refs/heads/dev'
     runs-on: self-hosted
     steps:
-      - name: checkout 
-        uses: actions/checkout@v3 
-      - name: fs scan dev
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Trivy Security Scan (Dev)
         run: |
-           trivy fs . -o dev_scan.json 
+          trivy fs . -o dev_scan.json
            
   fs_scan_main:
-     if: github.ref == 'refs/heads/main'
-     runs-on: self-hosted
-     steps:
-       - name: checkout 
-         uses: actions/checkout@v3 
-       - name: fs scan main
-         run: |
-           trivy fs . -o dev_scan.json 
+    if: github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Run Trivy Security Scan (Main)
+        run: |
+          trivy fs . -o main_scan.json
            
   dev_docker_build:
     if: github.ref == 'refs/heads/dev'
     runs-on: self-hosted
     steps:
-      - name: checkout 
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - name: docker build dev 
+
+      - name: Build Docker image for Dev
         run: |
-          docker-compose build . 
-          
+          # Build the Docker image for the dev branch
+          docker build -t bckimage .
+
   main_docker_build:
     if: github.ref == 'refs/heads/main'
     runs-on: self-hosted
     steps:
-      - name: checkout 
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - name: docker build main
-        run: |
-          docker-compose build . 
 
-          
+      - name: Build Docker image for Main
+        run: |
+          # Build the Docker image for the main branch
+          docker build -t bckimage .
+
   main_docker_dep:
     runs-on: self-hosted
     steps:
-      - name: checkout 
+      - name: Checkout repository
         uses: actions/checkout@v3 
-      - name: docker run main 
-        run: | 
-          docker-compose -p main up -d
+
+      - name: Build Docker image
+        run: |
+          # Build the Docker image
+          docker build -t bckimage .
+
+      - name: Run Docker container
+        run: |
+          # Run the Docker container
+          docker run -d --name main_container bckimage
