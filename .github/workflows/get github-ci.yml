@@ -1,6 +1,7 @@
 name: test pipeline
-on: 
-  push: 
+
+on:
+  push:
     branches:
       - master
       - dev
@@ -16,7 +17,7 @@ jobs:
       - name: Run Trivy Security Scan (Dev)
         run: |
           trivy fs . -o dev_scan.json
-           
+
   fs_scan_main:
     if: github.ref == 'refs/heads/main'
     runs-on: self-hosted
@@ -27,7 +28,7 @@ jobs:
       - name: Run Trivy Security Scan (Main)
         run: |
           trivy fs . -o main_scan.json
-           
+
   dev_docker_build:
     if: github.ref == 'refs/heads/dev'
     runs-on: self-hosted
@@ -37,7 +38,7 @@ jobs:
 
       - name: Build Docker image for Dev
         run: |
-          cd /Backend-dev/bck_devops_testing
+          cd /root/Backend-dev/bck_devops_testing
           docker build -t bckimage .
 
   main_docker_build:
@@ -49,19 +50,15 @@ jobs:
 
       - name: Build Docker image for Main
         run: |
-          cd /Backend-dev/bck_devops_testing
+          cd /root/Backend-dev/bck_devops_testing
           docker build -t bckimage .
 
   main_docker_dep:
     runs-on: self-hosted
+    needs: main_docker_build
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3 
-
-      - name: Build Docker image
-        run: |
-          cd /Backend-dev/bck_devops_testing
-          docker build -t bckimage .
 
       - name: Run Docker container
         run: |
