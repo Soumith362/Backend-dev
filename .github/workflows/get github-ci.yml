@@ -18,16 +18,16 @@ jobs:
         run: |
           trivy fs . -o dev_scan.json
 
-  fs_scan_main:
-    if: github.ref == 'refs/heads/main'
+  fs_scan_master:
+    if: github.ref == 'refs/heads/master'
     runs-on: self-hosted
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         
-      - name: Run Trivy Security Scan (Main)
+      - name: Run Trivy Security Scan (Master)
         run: |
-          trivy fs . -o main_scan.json
+          trivy fs . -o master_scan.json
 
   dev_docker_build:
     if: github.ref == 'refs/heads/dev'
@@ -39,27 +39,28 @@ jobs:
       - name: Build Docker image for Dev
         run: |
           cd /root/Backend-dev/bck_devops_testing
-          docker build -t bckimage .
+          docker build -t bckimage:dev .
 
-  main_docker_build:
-    if: github.ref == 'refs/heads/main'
+  master_docker_build:
+    if: github.ref == 'refs/heads/master'
     runs-on: self-hosted
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build Docker image for Main
+      - name: Build Docker image for Master
         run: |
           cd /root/Backend-dev/bck_devops_testing
-          docker build -t bckimage .
+          docker build -t bckimage:latest .
 
-  main_docker_dep:
+  master_docker_deploy:
+    if: github.ref == 'refs/heads/master'
     runs-on: self-hosted
-    needs: main_docker_build
+    needs: master_docker_build
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3 
 
       - name: Run Docker container
         run: |
-          docker run -d --name main_container bckimage
+          docker run -d --name main_container bckimage:latest
