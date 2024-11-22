@@ -1,71 +1,56 @@
-name: CI/CD Pipeline for Dockerized App
-
-on:
-  push:
-    branches:
-      - master
-
+name: test pipeline 
+on: 
+ push: 
+   branches:
+    - main 
+    - dev 
 jobs:
-  build-and-deploy:
-    runs-on: self-hosted  # Using self-hosted runner
-
+  fs_scan_dev:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: self-hosted
     steps:
-    # Step 1: Checkout code
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    # Step 2: Set up Docker Buildx
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    # Step 3: Log in to Docker Hub
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: soumith362
-        password: 9705346780
-
-    # Step 4: Build Docker image
-    - name: Build Docker image
-      run: |
-        echo "Building Docker image..."
-        ls -l bck_devops_testing/Dockerfile  # Check if Dockerfile exists
-        cat bck_devops_testing/Dockerfile     # Print Dockerfile content
-        docker build -t soumith362/bckimage:latest -f bck_devops_testing/Dockerfile bck_devops_testing/
-
-    # Step 5: Push Docker image to Docker Hub
-    - name: Push Docker image to Docker Hub
-      run: |
-        echo "Pushing Docker image..."
-        docker push soumith362/bckimage:latest
-
-    # Step 6: Deploy Docker container on EC2
-    - name: Deploy Docker container on EC2
-      env:
-        HOST: 52.91.26.208  # EC2 Public IP
-        USERNAME: ubuntu  # EC2 SSH username
-        PASSWORD: 9705346780  # EC2 password for SSH access
-      run: |
-        echo "Deploying Docker container on EC2..."
-
-        # Install sshpass if not installed
-        sudo apt-get update && sudo apt-get install -y sshpass
-
-        # SSH into EC2 and deploy the Docker container
-        sshpass -p "$PASSWORD" ssh -o StrictHostKeyChecking=no $USERNAME@$HOST << EOF
-        # Check Docker status on EC2
-        docker info || (echo "Docker is not installed or not running on EC2!" && exit 1)
-
-        # Pull the Docker image from Docker Hub
-        docker pull soumith362/bckimage:latest || (echo "Docker pull failed!" && exit 1)
-
-        # Stop and remove any existing container
-        docker stop my-app || true
-        docker rm my-app || true
-
-        # Run the new container
-        docker run -d --name my-app -p 80:80 soumith362/bckimage:latest || (echo "Failed to run Docker container!" && exit 1)
-
-        # Confirm if the container is running
-        docker ps || (echo "Docker container is not running!" && exit 1)
-        EOF
+      - name: checkout 
+        uses: actions/checkout@v3 
+      - name: fs scan dev
+        run: |
+           trivy fs . -o dev_scan.json 
+           
+  fs_scan_main:
+     if: github.ref == 'refs/heads/main'
+     runs-on: self-hosted
+     steps:
+       - name: checkout 
+         uses: actions/checkout@v3 
+       - name: fs scan main
+         run: |
+           trivy fs . -o dev_scan.json 
+           
+  dev_docker_build:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: self-hosted
+    steps:
+      - name: checkout 
+        uses: actions/checkout@v3
+      - name: docker build dev 
+        run: |
+          docker-compose build . 
+          
+  main_docker_build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    steps:
+      - name: checkout 
+        uses: actions/checkout@v3
+      - name: docker build main
+        run: |
+          docker-compose build . 
+          
+  
+  main_docker_dep:
+    runs-on: self-hosted
+    steps:
+      - name: checkout 
+        uses: actions/checkout@v3 
+      - name: docker run main 
+        run: | 
+          docker-compose -p main up -d
