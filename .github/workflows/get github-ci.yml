@@ -1,28 +1,65 @@
-name: test pipeline
-
-on:
-  push:
-    branches:
-      - master  # Change this to your branch name if it's different
-
+name: test pipeline 
+on: 
+ push: 
+   branches:
+    - main 
+    - dev 
 jobs:
-  docker_build:
+  fs_scan_dev:
+    if: github.ref == 'refs/heads/dev'
     runs-on: self-hosted
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Build Docker image
-        run: |
-          docker build -t bckimage ./Backend-dev/bck_devops_testing
-
-  docker_deploy:
-    runs-on: self-hosted
-    needs: docker_build
-    steps:
-      - name: Checkout repository
+      - name: checkout 
         uses: actions/checkout@v3 
-
-      - name: Run Docker container
+      - name: fs scan dev
         run: |
-          docker run -d --name main_container bckimage
+           trivy fs . -o dev_scan.json 
+           
+  fs_scan_main:
+     if: github.ref == 'refs/heads/main'
+     runs-on: self-hosted
+     steps:
+       - name: checkout 
+         uses: actions/checkout@v3 
+       - name: fs scan main
+         run: |
+           trivy fs . -o dev_scan.json 
+           
+  dev_docker_build:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: self-hosted
+    steps:
+      - name: checkout 
+        uses: actions/checkout@v3
+      - name: docker build dev 
+        run: |
+          docker-compose build . 
+          
+  main_docker_build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    steps:
+      - name: checkout 
+        uses: actions/checkout@v3
+      - name: docker build main
+        run: |
+          docker-compose build . 
+          
+  dev_docker_dep:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: self-hosted
+    steps:
+      - name: checkout 
+        uses: actions/checkout@v3 
+      - name: docker run dev
+        run: | 
+          docker-compose -p dev up -d  
+          
+  main_docker_dep:
+    runs-on: self-hosted
+    steps:
+      - name: checkout 
+        uses: actions/checkout@v3 
+      - name: docker run main 
+        run: | 
+          docker-compose -p main up -d
