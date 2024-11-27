@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v3
       - name: docker build dev 
         run: |
-          docker build -t backend-dev . 
+          docker build -t backend-dev -f /bck_devops_testing/Dockerfile . 
               
   dev_docker_dep:
     runs-on: self-hosted
